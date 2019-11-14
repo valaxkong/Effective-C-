@@ -99,29 +99,29 @@ shared_ptr<A> creatA()
 * 出于效率和多态考虑。
 
 ## 条款21 必须返回对象时,别妄想返回其reference
-* 不要返回一个指向heap对象的reference，应该返回poiner。
+* 不要返回一个指向heap对象的reference(你想谁去delete一个reference呢？)，应该返回poiner。
 * 当你在返回reference或pointer或object之间抉择时，只考虑做正确的事，不要考虑性能。
 
 ## 条款22 将成员变量写成private
 * 精确控制访问权限；为所有可能的实现提供弹性；实现notifier；保证数据的约束条件总是获得控制，在多线程中实现同步控制。（kls:不封装意味着不可改变。不可以改意味着无法从一个更佳的版本中获益）
 * 从封装角度看，只有private（封装）和其他（不提供封装）
 
-## 条款22 宁以non-member代替friend和menber
+## 条款23 宁以non-member代替friend和menber函数
 * 主要原因还是封装。friend和member会增加能访问private的函数数量。
+* 其次，还能降低编译相依度，增加packaging flexibility和机能扩充性。
 * 并非所有class都被设计用来做base class.对一些不是用来做base class的，要通过组合其接口来实现一些便利函数。这即是以non-member代替friend和menber
-* 剥离编译相依关系
 ```
 // 头文件“webrowser.h”
 namespace WebBrowserStuff
 {
 class WebBrowser{...};
-... //核心机能，几乎所有客户都需要的便利。
+... //核心机能，几乎所有客户都需要的便利函数。
 }
 
 // 头文件“webrowserbookmarks.h”
 namespace WebBrowserStuff
 {
-... //与书签相关的便利
+... //与书签相关的便利函数
 }
 ```
 ## 条款25 编写一个不抛出异常的swap函数(从swap函数看接口与template结合)
@@ -139,10 +139,12 @@ namespace WebBrowserStuff
 * 延后到可以给他初值实参为止。避免无意义的default构造。
 
 ## 条款27 尽量少做转型动作
-* dynamic_cast的代替方案：  
-1.使用类型安全的容器存储不同类型的对象。这样你可能需要多个容器存储不同对象。  
-2.使用virutal函数。
+* 手上只有基类，但是想针对某个子类调用特定函数时会用到dynamic_cast。
+* dynamic_cast的2个代替方案：  
+1.使用类型安全的容器存储不同类型的对象。这样你可能需要多个容器存储不同类型的对象。  
+2.依然使用基类的提供virutal函数作为接口，并对提供一份什么也不做的缺省实现。有需要的对象overwrite这个实现。
 (kls:自己摸索了很久也领悟到这一点。这需要面向对象的思维而不仅仅是基于对象的思维)
+3.永远不要做出“对象在C++中如何布局”这样的假设，更不要基于这个假设做任何行为。布局会因为编译器、平台不同而不同！
 
 ## 条款28 尽量少返回对象内部成分的handles(pointer, reference, itor)
 * 这么可能会降低封装性、handle和对象生存周期不一致，则可能造成dangling问题  
@@ -197,14 +199,15 @@ namespace WebBrowserStuff
 * 肯定违反设计
 
 ## 条款37 绝不重新定义继承而来的缺省参数值(不论是non-virtual还是virtual)
-* 缺省参数值都是静态绑定，而virtual函数---你d唯一应该覆写的东西---确实动态绑定。
+* 缺省参数值都是静态绑定，而virtual函数---你唯一应该覆写的东西---确是动态绑定。
 
 ## 条款38 复合关系和is-implemented-in-terms-of(依据某物实现出)
 * 就是通过成员变量或者成员指针的方式复合。
 * 在应用领域(application)，复合意味着has-a，在实现领域（implementation domain），复合意味着is-implementation-in-terms-of依据某物实现出。
 
 ## 条款39 明智审慎选择private继承
-* private继承意味着implemented-in-terms-of。也就是说，private继承只意味着实现部分被继承，接口部分应该略去。private继承在软件"设计"层面上没有意义，其意义只在于软件实现层面。  
+* private base继承而来的成员在derived class中都会变成private属性。  
+* private继承意味着implemented-in-terms-of。也就是说，private继承只意味着实现部分被继承，接口部分应该略去。private继承在软件"设计"层面上没有意义，其意义只在于软件实现层面。意味着derived class想用private base的已有的功能去实现自己。
 (kls:public继承和private继承意义明显，protected继承作者也认为其含义模糊)
 
 ## 条款40 明智审慎地使用多重继承
