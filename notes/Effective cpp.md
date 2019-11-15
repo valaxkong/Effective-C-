@@ -254,4 +254,26 @@ namespace WebBrowserStuff
 * 通过编码让编译器生成代码的技术。
 
 -----------------内存管理----------------
-## 49
+（这部分的学习可以参考侯捷的网络课程“C++内存管理”内）
+## 条款49 了解new handler的行为
+* set_new_handler允许客户指定一个函数，在内存无法分配时被调用  
+* new (std::nothrow) A；//只有nothrow new才会返回null，而正常的new只会抛出 bad_allocate异常
+
+# 条款50 了解new和delete的合理替换机制
+* 定制化new 和 delete的理由：检测运用错误并log；收集使用上的统计数据；强化效能。  
+*
+
+# 条款51 编写new和delete时要固守常规  
+* 例如需要有无线循序来调用new_handler  
+
+# 条款52 写了placement new也要写placement delete  
+* 要么只使用global下的placement new和delete。  
+* 如果你自定义placement new和delete，一定要成对出现，不然可能会导致内存泄露。  
+* 若自定义placement new和delete要考虑到名称遮掩问题，避免让定制化new delete的影响范围过大。  
+
+
+-----------------杂项条款----------------
+# 条款54 不要轻忽编译器的警告  
+
+# 条款55 熟悉tr1  
+* 
