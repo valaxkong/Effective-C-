@@ -91,6 +91,8 @@ shared_ptr<A> creatA()
 ## 条款17 以独立语句将newed对象放置入智能指针
 * 编译器核算参数的顺序是随机的。可能在核算某一参数时发生异常，导致一个右值指针向share_ptr的初始化失败,导致内存泄露。
 
+* kls:shared_ptr<Base> a = make_shared<Drived>()是可行的。若Base设定了virutal ~Base()，那么就能通过a管理Drived对象了（似乎基类不用virtual析构函数，a也能管理Drived对象，但是这样毕竟不好）。若想让a访问Drived对象的特有接口，那就需要`b = static_pointer_cast<Drived>(a)`。
+
 ------------------------------接口设计-----------------------------
 ## 条款18 让接口容易被正确使用
 * 若需要客户“记住”做某事，那接口设计基本有出错的倾向。
