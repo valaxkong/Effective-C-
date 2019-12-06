@@ -218,6 +218,106 @@ namespace WebBrowserStuff
 * 总的来看，若非确认多重继承是最高效，便捷，完美的办法，尽量不要使用。  
 ![](./40.1.png)
 ![](./40.2.png)
+* 多重继承+内存管理的样例代码
+```
+#include <iostream>
+#include <memory>
+
+using namespace std;
+
+class A
+{
+public:
+
+    A() = default;
+    virtual ~A() { cout << "dA" << endl; }
+    
+    int a;
+};
+
+class B : public A
+{
+public:
+    ~B() { cout << "dB" << endl; }
+    
+    int b;
+};
+
+class C
+{
+public:
+    virtual ~C() { cout << "dC" << endl; }
+    
+    int c;
+};
+
+class D : public A, public C
+{
+public:
+    ~D() { cout << "dD" << endl; }
+    
+    int c;
+    
+};
+
+
+int main()
+{
+   cout << "Hello World" << endl; 
+   
+   A* a = new B();
+   delete a;
+   
+   cout << "Hello World" << endl; 
+   
+   {
+     shared_ptr<A> a = make_shared<B>();
+   }
+   
+   cout << "Hello World" << endl; 
+
+    C* c = new D();
+    delete c;
+
+  cout << "Hello World" << endl;    
+  {
+     shared_ptr<A> a = make_shared<D>();
+  }
+   
+  cout << "Hello World" << endl; 
+   
+  {
+     shared_ptr<C> c = make_shared<D>();
+  }
+   
+  cout << "Hello World" << endl; 
+
+   
+   return 0;
+}
+```
+其输出为：
+```
+Hello World
+dB
+dA
+Hello World
+dB
+dA
+Hello World
+dD
+dC
+dA
+Hello World
+dD
+dC
+dA
+Hello World
+dD
+dC
+dA
+Hello World
+```
 
 --------------------------模板与泛型编程---------------------
 ## 条款41 了解隐式接口和编译期多态
