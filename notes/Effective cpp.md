@@ -82,9 +82,9 @@ shared_ptr<A> creatA()
     shared_ptr<A> retVal(nullptr, deleterA);
     retVal = ... //令retVal指向正确对象
 ```
-    
+
     return retVal;
-} 
+}
 ```
 * 常用的shared_ptr, unique_ptr在析构函数中都做的是delete而不是delete[]，boost下scoped_array和shared_array采用delete[]
 
@@ -127,29 +127,30 @@ namespace WebBrowserStuff
 }
 ```
 ## 条款25 编写一个不抛出异常的swap函数(从swap函数看接口与template结合)
-* swap for class.  
+* swap for class.
 ![](./swap1.png)
-* swap for template  
+* swap for template
 ![](./swap_for_template.png)
 
-* 总结  
-1.提供public swap函数，绝不抛出异常。（因为swap一大作用是构建异常安全的脊梁)  
-2.在class或者template所在空间内提供一个non-member swap,并令它调用相应的成员swap。  
+* 总结
+1.提供public swap函数，绝不抛出异常。（因为swap一大作用是构建异常安全的脊梁)
+2.在class或者template所在空间内提供一个non-member swap,并令它调用相应的成员swap。
 3.若果你在写的是class而非class template，那可以特化std::swap。
 
-## 条款26 尽可能延后变量定义  
+## 条款26 尽可能延后变量定义
 * 延后到可以给他初值实参为止。避免无意义的default构造。
 
 ## 条款27 尽量少做转型动作
+* static_cast是静态转换，可以在编译期报错。
 * 手上只有基类，但是想针对某个子类调用特定函数时会用到dynamic_cast。
-* dynamic_cast的2个代替方案：  
-1.使用类型安全的容器存储不同类型的对象。这样你可能需要多个容器存储不同类型的对象。  
+* dynamic_cast的2个代替方案：
+1.使用类型安全的容器存储不同类型的对象。这样你可能需要多个容器存储不同类型的对象。
 2.依然使用基类的提供virutal函数作为接口，并对提供一份什么也不做的缺省实现。有需要的对象overwrite这个实现。
 (kls:自己摸索了很久也领悟到这一点。这需要面向对象的思维而不仅仅是基于对象的思维)
 3.永远不要做出“对象在C++中如何布局”这样的假设，更不要基于这个假设做任何行为。布局会因为编译器、平台不同而不同！
 
 ## 条款28 尽量少返回对象内部成分的handles(pointer, reference, itor)
-* 这么可能会降低封装性、handle和对象生存周期不一致，则可能造成dangling问题  
+* 这么可能会降低封装性、handle和对象生存周期不一致，则可能造成dangling问题
 * (kls:返回handles很多时候不可避免，只能说自己注意上述问题)
 
 ## 条款29 异常安全保证
@@ -157,7 +158,7 @@ namespace WebBrowserStuff
 * 强烈异常安全保证：保证异常发生后，一切如发生前一样
 
 ## 条款31 将文件之间的编译依存关系降至最低。
-* 相依于声明式，不要依赖于定义式。  
+* 相依于声明式，不要依赖于定义式。
 ![](./30.1.png)
 * 函数参数中，即使是传值
 
@@ -170,7 +171,7 @@ namespace WebBrowserStuff
 * 当你面对“鸟都会飞，企鹅是鸟，但是企鹅不会飞”问题时，这往往说明不应该采用is-a关系。尝试使derived class的virutal func在调用过程中返回一个错误（运行期才检测）不是解决这类问题的好思想。
 
 ## 条款33 避免遮掩继承而来的名称
-* 如果你public继承base class,而你又希望重新定义或者overwrite其中的一部分，那么你必须为那些会被遮掩的名称引入一个using声明，否则某些你希望继承的名称会被遮掩。  
+* 如果你public继承base class,而你又希望重新定义或者overwrite其中的一部分，那么你必须为那些会被遮掩的名称引入一个using声明，否则某些你希望继承的名称会被遮掩。
 * 需要注意的是，遮掩只看函数名字。即使base class和derived class有不同的参数类型，而且不论是不是virtual，遮掩都会起作用。
 ![](./33.1.png)
 ![](./33.2.png)
@@ -178,7 +179,7 @@ namespace WebBrowserStuff
 ![](./33.6.png)
 ![](./33.4.png)
 
-* 若采用private继承。derived class中不要使用using，否则继承而来的所有同名函数在derived class中均可见了。这是需要使用转交函数（forwarding fuction）.  
+* 若采用private继承。derived class中不要使用using，否则继承而来的所有同名函数在derived class中均可见了。这是需要使用转交函数（forwarding fuction）.
 ![](./33.5.png)
 
 ## 条款34 区分接口继承和实现继承
@@ -192,10 +193,77 @@ namespace WebBrowserStuff
 
 ## 条款35 考虑virutal函数以外的选择
 * std::function可以持有任何与签名式兼容的可调用物。所谓兼容，意思是可调用物的参数和返回值均可以被隐式转换。
-* 另外常用的解决方案如下：  
+* 另外常用的解决方案如下：
 ![](./35.1.png)
-* (kls:需要注意，function对可调用对象仅仅调用析构函数！因此，需要对象自己能做内存清理，而且从简单角度考虑，最好是closure，不要与外界有共享的数据。这么看来，对任何类，均用share_ptr管理其内存就对了。)  
+* (kls:需要注意，function对可调用对象仅仅调用析构函数！因此，需要对象自己能做内存清理，而且从简单角度考虑，最好是closure，不要与外界有共享的数据。这么看来，对任何类，均用share_ptr管理其内存就对了。)
 ![](./35.2.png)![](./35.3.png)
+
+## 详细论条款35 stl中function和bind过程中的内存管理（基于gcc 5.2）
+* bind而言，若被bind的是一个对象的成员函数且用对象实例去调用，则先通过CopyContor创建一个匿名实例，然后用该匿名实例构造一个function。
+* bind而言，若被bind的是一个可调用引用，例如函数、通过对象的引用去调用的成员函数等，则使用该引用构造一个function。
+* function而言，若向其赋值的fn是一个实例，则按优先级（Move > Copy）构建function中的target。同时`析构`掉fn。当function析构时（设置为nullptr也会引起析构），析构掉target。
+* function而言，若向其赋值的fn是一个引用，则直接通过引用构建target，target也是一个引用。保留原fn。析构function时，只会把target设置为nullptr，`不会析构`原fn。
+* 可参见以下实例
+```cpp
+#include <functional>
+#include <iostream>
+
+struct Foo {
+    Foo(int num) : num_(num) {std::cout << "Ctor!" << this << std::endl;}
+    ~Foo(){std::cout << "Dctor!" << this << " " << num_ << std::endl;}
+    Foo(const Foo&) {std::cout << "Copy!" << this << " " << num_ << std::endl;}
+    Foo(const Foo&&) {std::cout << "Move!" << this << " " << num_ << std::endl;}
+    void print_add(int i) const { std::cout << num_+i << '\n'; }
+    int num_;
+};
+
+void print_num(int i)
+{
+    Foo foo(111);
+    Foo*bar = new Foo(222);
+    std::cout << i << '\n';
+}
+
+struct PrintNum {
+    PrintNum() {std::cout << "Ctor!" << this << std::endl;}
+    ~PrintNum(){std::cout << "Dctor!" << this << " " << num_ << std::endl;}
+    PrintNum(const PrintNum& rhs){std::cout << "Copy!" << this << " " << num_ << std::endl;}
+    PrintNum(const PrintNum&& rhs){std::cout << "Move!" << this << " " << num_ << std::endl;}
+
+    void operator()(int i) const
+    {
+        std::cout << i << '\n';
+    }
+
+    int num_ = 0;
+};
+
+int main()
+{
+    const Foo foo(314159);
+    std::cout << "-----------------11111-----------------" << std::endl;
+    using std::placeholders::_1;
+    std::function<void(int)> f_add_display2 = std::bind( &Foo::print_add, foo, _1 );
+    f_add_display2(2);
+    f_add_display2 = nullptr;
+
+    std::cout << "-----------------22222-----------------" << std::endl;
+
+    // store a call to a member function and object ptr
+    std::function<void(int)> f_add_display3 = std::bind( &Foo::print_add, &foo, _1 );
+    f_add_display3(3);
+    f_add_display3 = nullptr;
+
+    std::cout << "-----------------33333-----------------" << std::endl;
+
+    // store a call to a function object
+    std::function<void(int)> f_display_obj = PrintNum();
+    f_display_obj(18);
+    f_display_obj = nullptr;
+
+    std::cout << "-----------------44444-----------------" << std::endl;
+    std::cout << foo.num_ << std::endl;
+}```
 
 ## 条款36 绝不重新定义继承而来的non-virtual函数
 * 肯定违反设计
@@ -208,18 +276,18 @@ namespace WebBrowserStuff
 * 在应用领域(application)，复合意味着has-a，在实现领域（implementation domain），复合意味着is-implementation-in-terms-of依据某物实现出。
 
 ## 条款39 明智审慎选择private继承
-* private base继承而来的成员在derived class中都会变成private属性。  
+* private base继承而来的成员在derived class中都会变成private属性。
 * private继承意味着implemented-in-terms-of。也就是说，private继承只意味着实现部分被继承，接口部分应该略去。private继承在软件"设计"层面上没有意义，其意义只在于软件实现层面。意味着derived class想用private base的已有的功能去实现自己。
 (kls:public继承和private继承意义明显，protected继承作者也认为其含义模糊)
 
 ## 条款40 明智审慎地使用多重继承
 * 多重继承会面临从多个base class里继承而来多个同名甚至同签名的函数。此时需要明白的之处你调用的是谁。类似这样```mp.A::func();```
-* 面对菱形继承，需要使用virtual继承避免共同base class的成员在derived class中存在多个。  
-* 总的来看，若非确认多重继承是最高效，便捷，完美的办法，尽量不要使用。  
+* 面对菱形继承，需要使用virtual继承避免共同base class的成员在derived class中存在多个。
+* 总的来看，若非确认多重继承是最高效，便捷，完美的办法，尽量不要使用。
 ![](./40.1.png)
 ![](./40.2.png)
 * 多重继承+内存管理的样例代码
-```
+```cpp
 #include <iostream>
 #include <memory>
 
@@ -231,7 +299,7 @@ public:
 
     A() = default;
     virtual ~A() { cout << "dA" << endl; }
-    
+
     int a;
 };
 
@@ -239,7 +307,7 @@ class B : public A
 {
 public:
     ~B() { cout << "dB" << endl; }
-    
+
     int b;
 };
 
@@ -247,7 +315,7 @@ class C
 {
 public:
     virtual ~C() { cout << "dC" << endl; }
-    
+
     int c;
 };
 
@@ -255,44 +323,44 @@ class D : public A, public C
 {
 public:
     ~D() { cout << "dD" << endl; }
-    
+
     int c;
-    
+
 };
 
 
 int main()
 {
-   cout << "Hello World" << endl; 
-   
+   cout << "Hello World" << endl;
+
    A* a = new B();
    delete a;
-   
-   cout << "Hello World" << endl; 
-   
+
+   cout << "Hello World" << endl;
+
    {
      shared_ptr<A> a = make_shared<B>();
    }
-   
-   cout << "Hello World" << endl; 
+
+   cout << "Hello World" << endl;
 
     C* c = new D();
     delete c;
 
-  cout << "Hello World" << endl;    
+  cout << "Hello World" << endl;
   {
      shared_ptr<A> a = make_shared<D>();
   }
-   
-  cout << "Hello World" << endl; 
-   
+
+  cout << "Hello World" << endl;
+
   {
      shared_ptr<C> c = make_shared<D>();
   }
-   
-  cout << "Hello World" << endl; 
 
-   
+  cout << "Hello World" << endl;
+
+
    return 0;
 }
 ```
@@ -325,14 +393,14 @@ Hello World
 
 ## 条款42 了解typename的双重意义
 * C++规则，如果解析器在Template中遭遇一个嵌套从属名称，它便假设这名称不是个类型，除非你告诉他是。原理是，当名称嵌套于任何取决与Template参数的东西内时，编译器无法预先知道名称的类型。
-* 鉴于以上，见下例  
-![](./42.1.png)  
-* `有一个例外`  
+* 鉴于以上，见下例
+![](./42.1.png)
+* `有一个例外`
 ![](./42.2.png)
 
 ## 条款43 学习处理模板化基类（templatized base class）内的名称
 * 对于derived class编译器不会主动从其模板化基类中寻找继承而来的名称。原因:它知道模板化基类有可能被特化，而特化版本可能不提供和基类一样的一般性接口。
-* 当编译器在某时刻，知道了模板参数不能使得表达式有效的话，它会在那个时候报错。而在此之间，你需要做的是，给编译器一个假设，让它在不知道模板参数的时候，能找到名称。有3个办法，`利用this->；利用using；利用BaseClass::`，下面是`利用using`的例子。  
+* 当编译器在某时刻，知道了模板参数不能使得表达式有效的话，它会在那个时候报错。而在此之间，你需要做的是，给编译器一个假设，让它在不知道模板参数的时候，能找到名称。有3个办法，`利用this->；利用using；利用BaseClass::`，下面是`利用using`的例子。
 ![](./43.1.png)
 
 ## 条款44 将参数无关的代码抽离templates
@@ -341,8 +409,8 @@ Hello World
 
 ## 条款45 运用成员函数模板接受所有兼容类型
 * 同一个template的不同实例之间不会有任何关系，哪怕两个实例之间有继承关系。
-* 有如下实例  
-![](./45.1.png)  
+* 有如下实例
+![](./45.1.png)
 
 ## 条款46 需要类型转换时，请为模板定义非成员函数
 * 模板实参推倒过程中绝不将隐式类型转换纳入考虑。
@@ -358,24 +426,24 @@ Hello World
 -----------------内存管理----------------
 （这部分的学习可以参考侯捷的网络课程“C++内存管理”内）
 ## 条款49 了解new handler的行为
-* set_new_handler允许客户指定一个函数，在内存无法分配时被调用  
+* set_new_handler允许客户指定一个函数，在内存无法分配时被调用
 * new (std::nothrow) A；//只有nothrow new才会返回null，而正常的new只会抛出 bad_allocate异常
 
 # 条款50 了解new和delete的合理替换机制
-* 定制化new 和 delete的理由：检测运用错误并log；收集使用上的统计数据；强化效能。  
+* 定制化new 和 delete的理由：检测运用错误并log；收集使用上的统计数据；强化效能。
 *
 
-# 条款51 编写new和delete时要固守常规  
-* 例如需要有无线循序来调用new_handler  
+# 条款51 编写new和delete时要固守常规
+* 例如需要有无线循序来调用new_handler
 
-# 条款52 写了placement new也要写placement delete  
-* 要么只使用global下的placement new和delete。  
-* 如果你自定义placement new和delete，一定要成对出现，不然可能会导致内存泄露。  
-* 若自定义placement new和delete要考虑到名称遮掩问题，避免让定制化new delete的影响范围过大。  
+# 条款52 写了placement new也要写placement delete
+* 要么只使用global下的placement new和delete。
+* 如果你自定义placement new和delete，一定要成对出现，不然可能会导致内存泄露。
+* 若自定义placement new和delete要考虑到名称遮掩问题，避免让定制化new delete的影响范围过大。
 
 
 -----------------杂项条款----------------
-# 条款54 不要轻忽编译器的警告  
+# 条款54 不要轻忽编译器的警告
 
-# 条款55 熟悉tr1  
-* 
+# 条款55 熟悉tr1
+*
