@@ -103,6 +103,8 @@ shared_ptr<A> creatA()
 ## 条款21 必须返回对象时,别妄想返回其reference
 * 不要返回一个指向heap对象的reference(你想谁去delete一个reference呢？)，应该返回poiner。
 * 当你在返回reference或pointer或object之间抉择时，只考虑做正确的事，不要考虑性能。
+* 栈上对象，`只能`当做对象返回。
+* 堆上对象，`决不能`返回引用。建议返回pointer/smart pointer。即使考虑通过移动构造来降低拷贝负担，也可以专门写一个针对pointer的Move函数，这样还能处理pointer移动出内部数据后将自己delete的需求。
 
 ## 条款22 将成员变量写成private
 * 精确控制访问权限；为所有可能的实现提供弹性；实现notifier；保证数据的约束条件总是获得控制，在多线程中实现同步控制。（kls:不封装意味着不可改变。不可以改意味着无法从一个更佳的版本中获益）
